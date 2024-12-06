@@ -6,7 +6,7 @@ Currently, I have only tested on macos but ubuntu should also works
 ## Requirement
 After downloading, run the following script
 ```
-chmod +x install_mac.sh
+
 ```
 ## Step by step (For macos)
 1. Open terminal, go inside the folder, and run the following code
@@ -17,7 +17,12 @@ source .venv/bin/activate
 
 2. Then you can execute the install script
 ```
+chmod +x install_mac.sh
 ./install_mac.sh 
+```
+4. Then create a data folder
+```
+mkdir data
 ```
 3. If all the dependencies are installed properly, execute the following script
 4. Here make sure that the Tobii Pro Glasses 3 is connected to your os via wifi
