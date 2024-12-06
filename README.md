@@ -1,11 +1,12 @@
 # TP3py_realtime
 This is a system to stream, plot, and save Tobii Pro Glasses 3 IMU and gaze data in real time
 You can download it or use git clone
+Currently, I have only tested on macos but ubuntu should also works
 
 ## Requirement
 After downloading, run the following script
 ```
-chmod +x install_dependencies_{insert your os}.sh
+chmod +x install_mac.sh
 ```
 ## Step by step (For macos)
 1. Open terminal, go inside the folder, and run the following code
