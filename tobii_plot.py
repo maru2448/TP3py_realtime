@@ -14,7 +14,7 @@ class tobii_rt:
     def __init__(self):
         # Initialize
         buffer_size = 500
-        path = 'Documents/NAISTmaster/RA/2024/script/RealTIme_TP3/' # Insert your own path
+        path = 'TP3py_realtime/' # Insert your own path
         self.parent_dir = os.path.join(os.path.expanduser('~'), path)
         self.data = {'timestamp':np.zeros(buffer_size),  # prepare dummy data
                      'x':np.zeros(buffer_size),
