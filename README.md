@@ -31,3 +31,7 @@ http://192.168.75.51
 ```
 6. Sometimes data is not streaming. You should press 'q' to exit wait for a few seconds and try executing again
 7. You can ask me (Akmal) anytime if you encounter troubles
+8. When you have finished deactivate the virtual environment
+```
+deactivate
+```
