@@ -14,7 +14,7 @@ class tobii_rt:
     def __init__(self):
         # Initialize
         buffer_size = 500
-        path = 'TP3py_realtime/' # Insert your own path
+        path = 'Documents/NAISTmaster/RA/2024/script/RealTIme_TP3/' # Insert your own path
         self.parent_dir = os.path.join(os.path.expanduser('~'), path)
         self.data = {'timestamp':np.zeros(buffer_size),  # prepare dummy data
                      'x':np.zeros(buffer_size),
@@ -70,8 +70,8 @@ class tobii_rt:
 
         # Pile data
         self.pile_data(pd.DataFrame(imu), name='imu')
-        self.pile_data(Lgze, name='Lgze')
-        self.pile_data(Rgze, name='Rgze')
+        self.pile_data(pd.DataFrame(self.Lgze), name='Lgze')
+        self.pile_data(pd.DataFrame(self.Rgze), name='Rgze')
 
         # Plot om axes
         axes[0].plot(imu['timestamp'], imu['x'])
@@ -80,17 +80,17 @@ class tobii_rt:
         axes[1].set(xlabel='time [s]', ylabel='GYRO_Y [deg/s]')
         axes[2].plot(imu['timestamp'], imu['z'])
         axes[2].set(xlabel='time [s]', ylabel='GYRO_Z [deg/s]')
-        axes[3].plot(imu['timestamp'], Lgze['x'])
+        axes[3].plot(Lgze['timestamp'], Lgze['x'])
         axes[3].set(xlabel='time [s]', ylabel='(L)EYE_X [deg/s]')
-        axes[4].plot(imu['timestamp'], Lgze['y'])
+        axes[4].plot(Lgze['timestamp'], Lgze['y'])
         axes[4].set(xlabel='time [s]', ylabel='(L)EYE_Y [deg/s]')
-        axes[5].plot(imu['timestamp'], Lgze['z'])
+        axes[5].plot(Lgze['timestamp'], Lgze['z'])
         axes[5].set(xlabel='time [s]', ylabel='(L)EYE_Z [deg/s]')
-        axes[6].plot(imu['timestamp'], Rgze['x'])
+        axes[6].plot(Rgze['timestamp'], Rgze['x'])
         axes[6].set(xlabel='time [s]', ylabel='(R)EYE_X [deg/s]')
-        axes[7].plot(imu['timestamp'], Rgze['y'])
+        axes[7].plot(Rgze['timestamp'], Rgze['y'])
         axes[7].set(xlabel='time [s]', ylabel='(R)EYE_Y [deg/s]')
-        axes[8].plot(imu['timestamp'], Rgze['z'])
+        axes[8].plot(Rgze['timestamp'], Rgze['z'])
         axes[8].set(xlabel='time [s]', ylabel='(R)EYE_Z [deg/s]')
 
         for ax in axes:
@@ -106,12 +106,12 @@ class tobii_rt:
     
     def pile_data(self, data, name):
         if name == "imu":
-            self.DF_imu = pd.concat([self.DF_imu, data], ignore_index=True).drop_duplicates().reset_index(drop=True)
+            self.DF_imu = pd.concat([self.DF_imu, data], ignore_index=True).drop_duplicates(subset='timestamp').reset_index(drop=True)
         elif name == "Lgze":
-            self.DF_Lgze = pd.concat([self.DF_Lgze, data], ignore_index=True).drop_duplicates().reset_index(drop=True)
+            self.DF_Lgze = pd.concat([self.DF_Lgze, data], ignore_index=True).drop_duplicates(subset='timestamp').reset_index(drop=True)
         elif name == "Rgze":
-            self.DF_Rgze = pd.concat([self.DF_Rgze, data], ignore_index=True).drop_duplicates().reset_index(drop=True)
-            
+            self.DF_Rgze = pd.concat([self.DF_Rgze, data], ignore_index=True).drop_duplicates(subset='timestamp').reset_index(drop=True)
+
     def angular(self, gzedir):
         df = pd.DataFrame(gzedir)
         # Calculate the rolling mean of gaze direction over 3 consecutive rows
@@ -126,9 +126,8 @@ class tobii_rt:
         # Use numpy's diff to get the difference between adjacent rows
         # differential = np.diff(FilterGazeDir, axis=0)
         # FilterEyeAngVelo[1:-1] = differential[1:] / dt[1:, np.newaxis]
-        neighbors_sum = (FilterGazeDir[:-2] + FilterGazeDir[2:]) / (0.02*2)
-       
-        FilterEyeAngVelo[1:-1] = np.degrees(np.cross(FilterGazeDir[1:-1], neighbors_sum[:-2]))
+        neighbors_sum = (FilterGazeDir[2:].values - FilterGazeDir[:-2].values) / (0.02*2)
+        FilterEyeAngVelo[1:-1] = np.degrees(np.cross(FilterGazeDir[1:-1], neighbors_sum))
         FilterEyeAngVelodf = pd.concat([df['timestamp'], pd.DataFrame(FilterEyeAngVelo, columns=df.columns[1:])], axis=1)
         return FilterEyeAngVelodf
     
@@ -146,10 +145,13 @@ class tobii_rt:
         # Save dataframe
         date = datetime.now().strftime("%Y%m%d_%H%M%S")
         if len(self.DF_imu)>0:
+            self.DF_imu = self.DF_imu.sort_values(by='timestamp')
             self.DF_imu.to_csv(f'{self.parent_dir}/data/imu_{date}.csv', index=False)
-        if len(self.DF_Lgze)>0:   
+        if len(self.DF_Lgze)>0:
+            self.DF_Lgze = self.angular(self.DF_Lgze).sort_values(by='timestamp')
             self.DF_Lgze.to_csv(f'{self.parent_dir}/data/Lgze{date}.csv', index=False) 
         if len(self.DF_Rgze)>0:   
+            self.DF_Rgze = self.angular(self.DF_Rgze).sort_values(by='timestamp')
             self.DF_Rgze.to_csv(f'{self.parent_dir}/data/Rgze{date}.csv', index=False) 
         print('Files are saved...')
                 
