@@ -120,12 +120,15 @@ class tobii_rt:
         gaze_norm = np.linalg.norm(gaze_dir_rolling, axis=1, keepdims=True)
         FilterGazeDir = gaze_dir_rolling / gaze_norm
         # Calculate the eye angle velocity
-        dt = np.diff(df['timestamp'])
+        dt = df['timestamp'].diff()
         FilterEyeAngVelo = np.zeros_like(FilterGazeDir)
         # Vectorized calculation of eye angle velocity
         # Use numpy's diff to get the difference between adjacent rows
-        differential = np.diff(FilterGazeDir, axis=0)
-        FilterEyeAngVelo[1:-1] = differential[1:] / dt[1:, np.newaxis]
+        # differential = np.diff(FilterGazeDir, axis=0)
+        # FilterEyeAngVelo[1:-1] = differential[1:] / dt[1:, np.newaxis]
+        neighbors_sum = (FilterGazeDir[:-2] + FilterGazeDir[2:]) / 0.05
+       
+        FilterEyeAngVelo[1:-1] = np.degrees(np.cross(FilterGazeDir[1:-1], neighbors_sum[:-2]))
         FilterEyeAngVelodf = pd.concat([df['timestamp'], pd.DataFrame(FilterEyeAngVelo, columns=df.columns[1:])], axis=1)
         return FilterEyeAngVelodf
     
