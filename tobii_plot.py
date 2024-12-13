@@ -126,7 +126,7 @@ class tobii_rt:
         # Use numpy's diff to get the difference between adjacent rows
         # differential = np.diff(FilterGazeDir, axis=0)
         # FilterEyeAngVelo[1:-1] = differential[1:] / dt[1:, np.newaxis]
-        neighbors_sum = (FilterGazeDir[:-2] + FilterGazeDir[2:]) / 0.05
+        neighbors_sum = (FilterGazeDir[:-2] + FilterGazeDir[2:]) / 0.02*2
        
         FilterEyeAngVelo[1:-1] = np.degrees(np.cross(FilterGazeDir[1:-1], neighbors_sum[:-2]))
         FilterEyeAngVelodf = pd.concat([df['timestamp'], pd.DataFrame(FilterEyeAngVelo, columns=df.columns[1:])], axis=1)
